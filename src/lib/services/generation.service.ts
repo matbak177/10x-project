@@ -1,6 +1,7 @@
 import type { FlashcardProposalDto, GenerateFlashcardsCommand } from "../../types";
 import type { SupabaseClient } from "../../db/supabase.client";
 import { createHash } from "crypto";
+import { OpenRouterService, OpenRouterServiceError } from "@/lib/openrouter.service";
 
 export const prerender = false;
 
@@ -9,6 +10,31 @@ interface GenerationResult {
   flashcardProposals: FlashcardProposalDto[];
   generatedCount: number;
 }
+
+const flashcardsSchema = {
+  type: "object",
+  properties: {
+    flashcards: {
+      type: "array",
+      description: "An array of generated flashcards.",
+      items: {
+        type: "object",
+        properties: {
+          front: {
+            type: "string",
+            description: "The front side of the flashcard (question, term, concept).",
+          },
+          back: {
+            type: "string",
+            description: "The back side of the flashcard (answer, definition, explanation).",
+          },
+        },
+        required: ["front", "back"],
+      },
+    },
+  },
+  required: ["flashcards"],
+};
 
 export class GenerationService {
   private supabase: SupabaseClient;
@@ -43,31 +69,48 @@ export class GenerationService {
   async generateFlashcards(command: GenerateFlashcardsCommand): Promise<GenerationResult> {
     const startTime = Date.now();
     const sourceTextHash = createHash("md5").update(command.source_text).digest("hex");
-    const model = "mock-model";
+    const model = "openai/gpt-4o-mini";
 
-    let mockProposals: FlashcardProposalDto[];
+    let proposals: FlashcardProposalDto[];
+
     try {
-      // Mock AI service call. We simulate a failure if the text contains "FAIL".
-      if (command.source_text.includes("FAIL")) {
-        throw new Error("Simulated AI service failure: The model could not process the request.");
+      const openRouterService = OpenRouterService.getInstance();
+      const systemMessage = `Jesteś asystentem AI, który tworzy fiszki edukacyjne. Analizujesz podany tekst i generujesz z niego zwięzłe, trafne fiszki. Każda fiszka musi mieć przód (pytanie lub pojęcie) i tył (odpowiedź lub definicja). Skup się na najważniejszych informacjach z tekstu. Twoja odpowiedź musi być wyłącznie w formacie JSON zgodnym z podanym schematem.`;
+
+      const response = await openRouterService.getChatCompletion({
+        model,
+        userMessage: command.source_text,
+        systemMessage,
+        responseSchema: {
+          name: "flashcardExtractor",
+          schema: flashcardsSchema,
+        },
+      });
+
+      if (!response.structuredContent || !Array.isArray(response.structuredContent.flashcards)) {
+        throw new Error("Invalid structured content format from AI service.");
       }
-      mockProposals = [
-        { front: "Mock question 1?", back: "Mock answer 1.", source: "ai-full" },
-        { front: "Mock question 2?", back: "Mock answer 2.", source: "ai-full" },
-      ];
+
+      proposals = response.structuredContent.flashcards.map((card: any) => ({
+        ...card,
+        source: "ai-full" as const,
+      }));
     } catch (aiError: any) {
+      const errorCode = aiError instanceof OpenRouterServiceError ? "AI_SERVICE_ERROR" : "UNKNOWN_GENERATION_ERROR";
+
       await this.logGenerationError({
         sourceTextHash,
         sourceTextLength: command.source_text.length,
         model,
-        errorCode: "AI_SERVICE_ERROR",
+        errorCode,
         errorMessage: aiError.message,
       });
-      // Re-throw a generic error to the client.
-      throw new Error("AI service failed to generate flashcards.");
+
+      // Re-throw the original error for the API route to handle and log.
+      throw aiError;
     }
 
-    const generatedCount = mockProposals.length;
+    const generatedCount = proposals.length;
     const generationDuration = Date.now() - startTime;
 
     const { data: generation, error: dbError } = await this.supabase
@@ -97,7 +140,7 @@ export class GenerationService {
 
     return {
       generationId: generation.id,
-      flashcardProposals: mockProposals,
+      flashcardProposals: proposals,
       generatedCount: generatedCount,
     };
   }

@@ -69,3 +69,26 @@ export type GenerationErrorLogDto = Pick<
   GenerationErrorLog,
   "id" | "error_code" | "error_message" | "model" | "source_text_hash" | "source_text_length" | "created_at" | "user_id"
 >;
+
+// --- OpenRouter Service Types ---
+
+export interface ChatCompletionOptions {
+  model?: string;
+  userMessage: string;
+  systemMessage?: string;
+  responseSchema?: {
+    name: string;
+    schema: object;
+  };
+  params?: {
+    temperature?: number;
+    top_p?: number;
+    frequency_penalty?: number;
+    presence_penalty?: number;
+  };
+}
+
+export interface ChatCompletionResponse {
+  rawContent: string;
+  structuredContent?: any;
+}

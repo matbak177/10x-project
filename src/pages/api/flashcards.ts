@@ -33,6 +33,46 @@ const flashcardsCreateCommandSchema = z.object({
   flashcards: z.array(flashcardCreateDtoSchema).min(1, "At least one flashcard is required."),
 });
 
+const getFlashcardsQuerySchema = z.object({
+  page: z.coerce.number().int().positive().default(1),
+  limit: z.coerce.number().int().positive().max(100).default(20),
+  sort: z.enum(["created_at", "updated_at", "front"]).default("created_at"),
+  order: z.enum(["asc", "desc"]).default("desc"),
+});
+
+export const GET: APIRoute = async ({ request, locals }) => {
+  const { supabase } = locals;
+  const user = { id: DEFAULT_USER_ID }; // Using default user ID
+
+  const url = new URL(request.url);
+  const queryParams = Object.fromEntries(url.searchParams.entries());
+
+  const validation = getFlashcardsQuerySchema.safeParse(queryParams);
+
+  if (!validation.success) {
+    return new Response(JSON.stringify({ message: "Validation failed", errors: validation.error.flatten() }), {
+      status: 400,
+      headers: { "Content-Type": "application/json" },
+    });
+  }
+
+  const flashcardService = new FlashcardService(supabase, user.id);
+
+  try {
+    const result = await flashcardService.getFlashcards(validation.data);
+    return new Response(JSON.stringify(result), {
+      status: 200,
+      headers: { "Content-Type": "application/json" },
+    });
+  } catch (error) {
+    console.error("Error fetching flashcards:", error);
+    return new Response(JSON.stringify({ message: "Internal Server Error" }), {
+      status: 500,
+      headers: { "Content-Type": "application/json" },
+    });
+  }
+};
+
 export const POST: APIRoute = async ({ request, locals }) => {
   const { supabase } = locals;
   const user = { id: DEFAULT_USER_ID }; // Using default user ID as requested in other endpoints
