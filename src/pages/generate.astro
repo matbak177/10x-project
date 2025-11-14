@@ -1,0 +1,10 @@
+---
+import Layout from "@/layouts/Layout.astro";
+import GenerationView from "@/components/views/GenerationView";
+---
+
+<Layout title="Generuj Fiszki">
+  <main class="container mx-auto py-8">
+    <GenerationView client:load />
+  </main>
+</Layout>

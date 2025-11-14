@@ -1,0 +1,10 @@
+---
+import Layout from "@/layouts/Layout.astro";
+import ChatComponent from "@/components/ChatComponent";
+---
+
+<Layout title="Test czatu">
+  <main class="container mx-auto py-8">
+    <ChatComponent client:load />
+  </main>
+</Layout>
