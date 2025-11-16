@@ -12,7 +12,7 @@ export default defineConfig({
   workers: process.env.CI ? 1 : undefined,
   reporter: "html",
   use: {
-    baseURL: "http://localhost:3000",
+    baseURL: "http://localhost:4321",
     trace: "on-first-retry",
   },
   projects: [
@@ -22,8 +22,13 @@ export default defineConfig({
     },
   ],
   webServer: {
-    command: `SUPABASE_URL=${process.env.SUPABASE_URL} PUBLIC_SUPABASE_PUBLIC_KEY=${process.env.SUPABASE_PUBLIC_KEY} npm run preview`,
-    url: "http://localhost:3000",
+    command: "npm run dev -- --verbose",
+    url: "http://localhost:4321",
     reuseExistingServer: !process.env.CI,
+    timeout: 120 * 1000,
+    env: {
+      SUPABASE_URL: process.env.SUPABASE_URL!,
+      PUBLIC_SUPABASE_PUBLIC_KEY: process.env.SUPABASE_PUBLIC_KEY!,
+    },
   },
 });
