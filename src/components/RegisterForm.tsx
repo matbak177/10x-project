@@ -68,7 +68,7 @@ export function RegisterForm() {
       } else {
         window.location.href = "/generate";
       }
-    } catch (err) {
+    } catch {
       setFormState({ errors: { form: "Nie udało się połączyć z serwerem." } });
     } finally {
       setIsLoading(false);

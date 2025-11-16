@@ -73,6 +73,7 @@ export const GET: APIRoute = async ({ request, locals }) => {
       headers: { "Content-Type": "application/json" },
     });
   } catch (error) {
+    // eslint-disable-next-line no-console
     console.error("Error fetching flashcards:", error);
     return new Response(JSON.stringify({ message: "Internal Server Error" }), {
       status: 500,
@@ -97,7 +98,7 @@ export const POST: APIRoute = async ({ request, locals }) => {
   let body: FlashcardsCreateCommand;
   try {
     body = await request.json();
-  } catch (error) {
+  } catch {
     return new Response(JSON.stringify({ message: "Invalid JSON body" }), {
       status: 400,
       headers: { "Content-Type": "application/json" },
@@ -122,6 +123,7 @@ export const POST: APIRoute = async ({ request, locals }) => {
       headers: { "Content-Type": "application/json" },
     });
   } catch (error) {
+    // eslint-disable-next-line no-console
     console.error("Error creating flashcards:", error);
     return new Response(JSON.stringify({ message: "Internal Server Error" }), {
       status: 500,

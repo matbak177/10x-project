@@ -7,6 +7,7 @@ Celem tego widoku jest umożliwienie użytkownikom automatycznego generowania pr
 ## 2. Routing widoku
 
 Widok będzie dostępny pod następującą ścieżką:
+
 - **Ścieżka**: `/generate`
 
 ## 3. Struktura komponentów
@@ -35,6 +36,7 @@ Komponenty zostaną zaimplementowane w React i osadzone na stronie Astro. Widok 
 ## 4. Szczegóły komponentów
 
 ### `GenerationView`
+
 - **Opis komponentu**: Główny kontener strony, który zarządza całym stanem i logiką za pomocą customowego hooka `useGenerationAndReview`. Renderuje `GenerationForm` oraz, po pomyślnym wygenerowaniu propozycji, `ReviewSection`.
 - **Główne elementy**: `GenerationForm`, `ReviewSection`.
 - **Obsługiwane interakcje**: Brak, deleguje logikę do hooka.
@@ -43,6 +45,7 @@ Komponenty zostaną zaimplementowane w React i osadzone na stronie Astro. Widok 
 - **Propsy**: Brak.
 
 ### `GenerationForm`
+
 - **Opis komponentu**: Formularz do wprowadzania tekstu źródłowego. Zawiera pole tekstowe oraz przycisk do uruchomienia generowania.
 - **Główne elementy**: `Textarea` z licznikiem znaków, `Button`.
 - **Obsługiwane interakcje**: Wprowadzanie tekstu, kliknięcie przycisku "Generuj".
@@ -57,6 +60,7 @@ Komponenty zostaną zaimplementowane w React i osadzone na stronie Astro. Widok 
   - `isGenerating: boolean`
 
 ### `ReviewSection`
+
 - **Opis komponentu**: Kontener na listę wygenerowanych fiszek oraz przyciski akcji.
 - **Główne elementy**: Lista komponentów `FlashcardProposalCard`, `ReviewActions`, `EditFlashcardDialog`.
 - **Obsługiwane interakcje**: Deleguje zdarzenia od komponentów dzieci do `GenerationView`.
@@ -75,6 +79,7 @@ Komponenty zostaną zaimplementowane w React i osadzone na stronie Astro. Widok 
   - `onCancelEdit: () => void`
 
 ### `FlashcardProposalCard`
+
 - **Opis komponentu**: Karta wyświetlająca pojedynczą propozycję fiszki. Zmienia wygląd w zależności od statusu (zaakceptowana, odrzucona).
 - **Główne elementy**: `Card`, `CardHeader`, `CardContent`, `CardFooter` z `Button`.
 - **Obsługiwane interakcje**: Kliknięcie przycisków "Akceptuj", "Odrzuć", "Edytuj".
@@ -87,6 +92,7 @@ Komponenty zostaną zaimplementowane w React i osadzone na stronie Astro. Widok 
   - `onEdit: (id: string) => void`
 
 ### `EditFlashcardDialog`
+
 - **Opis komponentu**: Modal do edycji treści fiszki.
 - **Główne elementy**: `Dialog` z formularzem zawierającym `Input` dla przodu i tyłu fiszki.
 - **Obsługiwane interakcje**: Wprowadzanie tekstu, zapisanie zmian, anulowanie.
@@ -100,6 +106,7 @@ Komponenty zostaną zaimplementowane w React i osadzone na stronie Astro. Widok 
   - `onCancel: () => void`
 
 ### `ReviewActions`
+
 - **Opis komponentu**: Wyświetla liczbę zaakceptowanych fiszek i przyciski do akcji masowych, takich jak akceptacja/odrzucenie wszystkich oraz zapisanie zaakceptowanych.
 - **Główne elementy**: Tekst informacyjny, `Button`y.
 - **Obsługiwane interakcje**: Kliknięcie przycisku "Zapisz", "Akceptuj wszystkie", "Odrzuć wszystkie".
@@ -126,8 +133,8 @@ export type ProposalStatus = "pending" | "accepted" | "rejected";
 // ViewModel dla pojedynczej propozycji fiszki
 export interface FlashcardProposalViewModel extends FlashcardProposalDto {
   // Unikalny identyfikator po stronie klienta (np. z crypto.randomUUID())
-  id: string; 
-  
+  id: string;
+
   // Status propozycji (oczekująca, zaakceptowana, odrzucona)
   status: ProposalStatus;
 
@@ -158,16 +165,16 @@ Cała logika i stan zostaną zamknięte w customowym hooku `useGenerationAndRevi
 ## 7. Integracja API
 
 1.  **Generowanie propozycji**
-    -   **Endpoint**: `POST /api/generations`
-    -   **Typ żądania**: `GenerateFlashcardsCommand` (`{ source_text: string }`)
-    -   **Typ odpowiedzi**: `GenerationCreateResponseDto`
-    -   **Logika**: Po pomyślnym odebraniu danych, `flashcard_proposals` są mapowane na `FlashcardProposalViewModel`, dodając `id`, `status: 'pending'` i `edited: false`. Zapisywany jest również `generation_id`.
+    - **Endpoint**: `POST /api/generations`
+    - **Typ żądania**: `GenerateFlashcardsCommand` (`{ source_text: string }`)
+    - **Typ odpowiedzi**: `GenerationCreateResponseDto`
+    - **Logika**: Po pomyślnym odebraniu danych, `flashcard_proposals` są mapowane na `FlashcardProposalViewModel`, dodając `id`, `status: 'pending'` i `edited: false`. Zapisywany jest również `generation_id`.
 
 2.  **Zapisywanie zaakceptowanych fiszek**
-    -   **Endpoint**: `POST /api/flashcards`
-    -   **Typ żądania**: `FlashcardsCreateCommand` (`{ flashcards: FlashcardCreateDto[] }`)
-    -   **Typ odpowiedzi**: `FlashcardDto[]`
-    -   **Logika**: `proposals` są filtrowane po `status: 'accepted'`. Następnie są mapowane na `FlashcardCreateDto`, gdzie pole `source` jest ustawiane na `'ai-edited'` jeśli `proposal.edited` jest `true`, w przeciwnym razie na `'ai-full'`. Do każdej fiszki dołączany jest `generation_id`.
+    - **Endpoint**: `POST /api/flashcards`
+    - **Typ żądania**: `FlashcardsCreateCommand` (`{ flashcards: FlashcardCreateDto[] }`)
+    - **Typ odpowiedzi**: `FlashcardDto[]`
+    - **Logika**: `proposals` są filtrowane po `status: 'accepted'`. Następnie są mapowane na `FlashcardCreateDto`, gdzie pole `source` jest ustawiane na `'ai-edited'` jeśli `proposal.edited` jest `true`, w przeciwnym razie na `'ai-full'`. Do każdej fiszki dołączany jest `generation_id`.
 
 ## 8. Interakcje użytkownika
 
@@ -202,16 +209,16 @@ Stan błędu będzie resetowany przy ponownej próbie wykonania akcji.
 2.  **Zdefiniowanie typów**: Utworzenie pliku `src/types/view-models.ts` i zdefiniowanie typu `FlashcardProposalViewModel`.
 3.  **Implementacja `GenerationForm`**: Zbudowanie formularza z `Textarea` i `Button` z Shadcn/ui. Dodanie logiki walidacji i obsługi stanu ładowania.
 4.  **Implementacja hooka `useGenerationAndReview`**:
-    -   Zdefiniowanie stanu (`useState`).
-    -   Implementacja funkcji `handleGenerate` z wywołaniem API `POST /api/generations`.
+    - Zdefiniowanie stanu (`useState`).
+    - Implementacja funkcji `handleGenerate` z wywołaniem API `POST /api/generations`.
 5.  **Integracja `GenerationForm` z `GenerationView`**: Podłączenie stanu i funkcji z hooka do propsów `GenerationForm`.
 6.  **Implementacja `ReviewSection` i komponentów podrzędnych**:
-    -   Stworzenie `FlashcardProposalCard` z wariantami wizualnymi dla różnych statusów.
-    -   Stworzenie `EditFlashcardDialog` z formularzem edycji.
-    -   Stworzenie `ReviewActions` z licznikiem i przyciskiem zapisu.
+    - Stworzenie `FlashcardProposalCard` z wariantami wizualnymi dla różnych statusów.
+    - Stworzenie `EditFlashcardDialog` z formularzem edycji.
+    - Stworzenie `ReviewActions` z licznikiem i przyciskiem zapisu.
 7.  **Rozbudowa hooka `useGenerationAndReview`**:
-    -   Dodanie funkcji do obsługi akcji: `handleAccept`, `handleReject`, `handleStartEdit`, `handleSaveEdit`, `handleCancelEdit`, `handleAcceptAll`, `handleRejectAll`.
-    -   Implementacja funkcji `handleSave` z logiką filtrowania, mapowania i wywołaniem API `POST /api/flashcards`.
+    - Dodanie funkcji do obsługi akcji: `handleAccept`, `handleReject`, `handleStartEdit`, `handleSaveEdit`, `handleCancelEdit`, `handleAcceptAll`, `handleRejectAll`.
+    - Implementacja funkcji `handleSave` z logiką filtrowania, mapowania i wywołaniem API `POST /api/flashcards`.
 8.  **Finalna integracja**: Połączenie wszystkich komponentów w `GenerationView`, przekazanie propsów i obsługa warunkowego renderowania `ReviewSection`.
 9.  **Obsługa błędów i Toastów**: Zintegrowanie systemu powiadomień "toast" do komunikowania sukcesów i błędów.
 10. **Stylowanie i dopracowanie UI**: Użycie Tailwind CSS do finalnego dopracowania wyglądu i responsywności widoku.

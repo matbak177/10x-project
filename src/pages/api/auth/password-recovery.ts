@@ -21,6 +21,7 @@ class AuthService extends ApiService {
 
     if (error) {
       // Don't expose that the user does not exist or other errors
+      // eslint-disable-next-line no-console
       console.error(error);
     }
 

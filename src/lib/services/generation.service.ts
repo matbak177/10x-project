@@ -62,6 +62,7 @@ export class GenerationService {
     });
 
     if (error) {
+      // eslint-disable-next-line no-console
       console.error("Critical: Failed to log generation error to the database:", error);
     }
   }
@@ -91,11 +92,11 @@ export class GenerationService {
         throw new Error("Invalid structured content format from AI service.");
       }
 
-      proposals = response.structuredContent.flashcards.map((card: any) => ({
+      proposals = response.structuredContent.flashcards.map((card) => ({
         ...card,
         source: "ai-full" as const,
       }));
-    } catch (aiError: any) {
+    } catch (aiError) {
       const errorCode = aiError instanceof OpenRouterServiceError ? "AI_SERVICE_ERROR" : "UNKNOWN_GENERATION_ERROR";
 
       await this.logGenerationError({
@@ -103,7 +104,7 @@ export class GenerationService {
         sourceTextLength: command.source_text.length,
         model,
         errorCode,
-        errorMessage: aiError.message,
+        errorMessage: (aiError as Error).message,
       });
 
       // Re-throw the original error for the API route to handle and log.
@@ -134,6 +135,7 @@ export class GenerationService {
         errorCode: "DATABASE_INSERT_ERROR",
         errorMessage: dbError.message,
       });
+      // eslint-disable-next-line no-console
       console.error("Error saving generation to database:", dbError);
       throw new Error("Failed to save generation data.");
     }

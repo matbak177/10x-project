@@ -5,7 +5,6 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { Button } from "@/components/ui/button";
 import { DataTable } from "@/components/ui/data-table";
 import { columns } from "./columns";
-import type { Database } from "@/db/database.types";
 import type { Flashcard } from "./columns";
 import StudyView from "./StudyView";
 

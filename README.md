@@ -22,13 +22,13 @@ The AI Flashcard Generator addresses the time-consuming challenge of manually cr
 
 The project is built with a modern, type-safe, and efficient technology stack:
 
-| Category          | Technology                                                              |
-| ----------------- | ----------------------------------------------------------------------- |
-| **Frontend**      | [Astro 5](https://astro.build/), [React 19](https://react.dev/), [TypeScript 5](https://www.typescriptlang.org/), [Tailwind CSS 4](https://tailwindcss.com/), [Shadcn/ui](https://ui.shadcn.com/) |
-| **Backend**       | [Supabase](https://supabase.com/) (PostgreSQL, Authentication, BaaS)       |
-| **AI Integration**| [Openrouter.ai](https://openrouter.ai/) (Access to various LLMs)         |
-| **Testing**       | [Vitest](https://vitest.dev/) (Unit/Integration), [Playwright](https://playwright.dev/) (E2E), [React Testing Library](https://testing-library.com/docs/react-testing-library/intro/) (Components) |
-| **CI/CD & Hosting**| [GitHub Actions](https://github.com/features/actions), [DigitalOcean](https://www.digitalocean.com/) (via Docker) |
+| Category            | Technology                                                                                                                                                                                         |
+| ------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| **Frontend**        | [Astro 5](https://astro.build/), [React 19](https://react.dev/), [TypeScript 5](https://www.typescriptlang.org/), [Tailwind CSS 4](https://tailwindcss.com/), [Shadcn/ui](https://ui.shadcn.com/)  |
+| **Backend**         | [Supabase](https://supabase.com/) (PostgreSQL, Authentication, BaaS)                                                                                                                               |
+| **AI Integration**  | [Openrouter.ai](https://openrouter.ai/) (Access to various LLMs)                                                                                                                                   |
+| **Testing**         | [Vitest](https://vitest.dev/) (Unit/Integration), [Playwright](https://playwright.dev/) (E2E), [React Testing Library](https://testing-library.com/docs/react-testing-library/intro/) (Components) |
+| **CI/CD & Hosting** | [GitHub Actions](https://github.com/features/actions), [DigitalOcean](https://www.digitalocean.com/) (via Docker)                                                                                  |
 
 ## Getting Started Locally
 
@@ -45,22 +45,27 @@ Follow these instructions to set up and run the project on your local machine.
 ### Installation
 
 1.  **Clone the repository:**
+
     ```sh
     git clone https://github.com/your-username/ai-flashcard-generator.git
     cd ai-flashcard-generator
     ```
 
 2.  **Install dependencies:**
+
     ```sh
     npm install
     ```
 
 3.  **Set up environment variables:**
     Create a `.env` file in the project root by copying the example file:
+
     ```sh
     cp .env.example .env
     ```
+
     Populate the `.env` file with your credentials for Supabase and Openrouter.ai.
+
     ```env
     # Supabase
     PUBLIC_SUPABASE_URL="your-supabase-url"
@@ -84,31 +89,31 @@ The application will be available at `http://localhost:4321`.
 
 This project includes several scripts to help with development:
 
--   `npm run dev`: Starts the development server.
--   `npm run build`: Builds the application for production.
--   `npm run preview`: Serves the production build locally for previewing.
--   `npm run lint`: Lints the codebase for errors.
--   `npm run lint:fix`: Lints the codebase and automatically fixes issues.
--   `npm run format`: Formats all files using Prettier.
+- `npm run dev`: Starts the development server.
+- `npm run build`: Builds the application for production.
+- `npm run preview`: Serves the production build locally for previewing.
+- `npm run lint`: Lints the codebase for errors.
+- `npm run lint:fix`: Lints the codebase and automatically fixes issues.
+- `npm run format`: Formats all files using Prettier.
 
 ## Project Scope (MVP)
 
 ### In Scope
 
--   **User Account System**: Secure registration and login via email and password.
--   **AI-Powered Generation**: Create flashcards from pasted text (1,000-10,000 characters).
--   **Review Workflow**: A dedicated interface to accept, edit, or reject AI-generated flashcards.
--   **Manual Management**: Full CRUD (Create, Read, Update, Delete) functionality for flashcards.
--   **Deck Organization**: Group flashcards into thematic decks.
--   **Simple Study Mechanism**: Archive "remembered" cards to focus on new material.
+- **User Account System**: Secure registration and login via email and password.
+- **AI-Powered Generation**: Create flashcards from pasted text (1,000-10,000 characters).
+- **Review Workflow**: A dedicated interface to accept, edit, or reject AI-generated flashcards.
+- **Manual Management**: Full CRUD (Create, Read, Update, Delete) functionality for flashcards.
+- **Deck Organization**: Group flashcards into thematic decks.
+- **Simple Study Mechanism**: Archive "remembered" cards to focus on new material.
 
 ### Out of Scope
 
--   Advanced spaced repetition algorithms (e.g., SM-2).
--   Importing from files (PDF, DOCX, etc.).
--   Sharing or publishing decks.
--   Integrations with third-party educational platforms.
--   Dedicated mobile applications.
+- Advanced spaced repetition algorithms (e.g., SM-2).
+- Importing from files (PDF, DOCX, etc.).
+- Sharing or publishing decks.
+- Integrations with third-party educational platforms.
+- Dedicated mobile applications.
 
 ## Project Status
 

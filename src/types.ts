@@ -90,5 +90,5 @@ export interface ChatCompletionOptions {
 
 export interface ChatCompletionResponse {
   rawContent: string;
-  structuredContent?: any;
+  structuredContent?: Record<string, unknown>;
 }

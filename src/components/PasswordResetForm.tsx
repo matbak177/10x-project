@@ -84,7 +84,7 @@ export function PasswordResetForm() {
       } else {
         setFormState({ message: "Hasło zostało pomyślnie zmienione." });
       }
-    } catch (err) {
+    } catch {
       setFormState({ errors: { form: "Nie udało się połączyć z serwerem." } });
     } finally {
       setIsLoading(false);

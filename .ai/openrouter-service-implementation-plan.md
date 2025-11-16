@@ -5,6 +5,7 @@ Niniejszy dokument stanowi szczegółowy przewodnik dla programistów w celu wdr
 ## 1. Opis usługi
 
 `OpenRouterService` będzie klasą po stronie serwera, odpowiedzialną za:
+
 - Bezpieczne zarządzanie kluczem API OpenRouter.
 - Konstruowanie poprawnych zapytań do API, włączając w to wiadomości, parametry modelu oraz formatowanie odpowiedzi.
 - Wysyłanie zapytań do punktu końcowego API OpenRouter.
@@ -18,9 +19,11 @@ Usługa zostanie zaimplementowana jako singleton lub klasa z metodą statyczną 
 Konstruktor klasy będzie prywatny, aby wymusić wzorzec singleton. Inicjalizacja będzie odbywać się za pośrednictwem publicznej metody statycznej.
 
 `private constructor(apiKey: string)`
+
 - **`apiKey`**: Klucz API OpenRouter odczytany ze zmiennych środowiskowych.
 
 `public static getInstance(): OpenRouterService`
+
 - Ta metoda sprawdzi, czy instancja usługi już istnieje. Jeśli nie, utworzy nową, odczytując klucz `OPENROUTER_API_KEY` z `import.meta.env`.
 - Rzuci błędem `Error` podczas uruchamiania serwera, jeśli klucz API nie zostanie znaleziony w zmiennych środowiskowych, zapobiegając nieprawidłowemu działaniu usługi w trakcie działania.
 
@@ -46,9 +49,9 @@ Jest to główna metoda usługi. Będzie przyjmować jeden obiekt konfiguracyjny
     };
     params?: {
       temperature?: number; // 0.0 to 2.0
-      top_p?: number;       // 0.0 to 1.0
+      top_p?: number; // 0.0 to 1.0
       frequency_penalty?: number; // -2.0 to 2.0
-      presence_penalty?: number;  // -2.0 to 2.0
+      presence_penalty?: number; // -2.0 to 2.0
     };
   }
 
@@ -66,7 +69,7 @@ Jest to główna metoda usługi. Będzie przyjmować jeden obiekt konfiguracyjny
 const openRouterService = OpenRouterService.getInstance();
 const response = await openRouterService.getChatCompletion({
   userMessage: "Czym jest Astro?",
-  model: "openai/gpt-3.5-turbo"
+  model: "openai/gpt-3.5-turbo",
 });
 console.log(response.rawContent);
 ```
@@ -79,8 +82,8 @@ const response = await openRouterService.getChatCompletion({
   systemMessage: "Jesteś kreatywnym pisarzem science-fiction.",
   model: "mistralai/mistral-7b-instruct",
   params: {
-    temperature: 1.4
-  }
+    temperature: 1.4,
+  },
 });
 ```
 
@@ -88,12 +91,12 @@ const response = await openRouterService.getChatCompletion({
 
 ```typescript
 const userSchema = {
-  type: 'object',
+  type: "object",
   properties: {
-    fullName: { type: 'string', description: "Pełne imię i nazwisko użytkownika." },
-    userEmail: { type: 'string', description: "Adres e-mail użytkownika." }
+    fullName: { type: "string", description: "Pełne imię i nazwisko użytkownika." },
+    userEmail: { type: "string", description: "Adres e-mail użytkownika." },
   },
-  required: ['fullName', 'userEmail']
+  required: ["fullName", "userEmail"],
 };
 
 const response = await openRouterService.getChatCompletion({
@@ -101,8 +104,8 @@ const response = await openRouterService.getChatCompletion({
   systemMessage: "Wyodrębnij dane użytkownika z podanego tekstu.",
   responseSchema: {
     name: "userExtractor",
-    schema: userSchema
-  }
+    schema: userSchema,
+  },
 });
 
 if (response.structuredContent) {
@@ -131,6 +134,7 @@ Usługa będzie implementować niestandardowe klasy błędów, aby umożliwić k
 - **`ResponseParseError extends OpenRouterServiceError`**: Rzucany, gdy odpowiedź modelu miała być w formacie JSON, ale parsowanie się nie powiodło.
 
 **Przykład obsługi błędów w punkcie końcowym API Astro:**
+
 ```typescript
 // src/pages/api/chat.ts
 import { OpenRouterService, ApiError } from '@/lib/OpenRouterService';
@@ -210,7 +214,10 @@ export class OpenRouterServiceError extends Error {
 }
 export class ConfigurationError extends OpenRouterServiceError {}
 export class ApiError extends OpenRouterServiceError {
-  constructor(message: string, public status: number) {
+  constructor(
+    message: string,
+    public status: number
+  ) {
     super(message);
     this.status = status;
   }
@@ -218,12 +225,11 @@ export class ApiError extends OpenRouterServiceError {
 export class NetworkError extends OpenRouterServiceError {}
 export class ResponseParseError extends OpenRouterServiceError {}
 
-
 export class OpenRouterService {
   private static instance: OpenRouterService;
   private readonly apiKey: string;
-  private readonly apiUrl = 'https://openrouter.ai/api/v1/chat/completions';
-  
+  private readonly apiUrl = "https://openrouter.ai/api/v1/chat/completions";
+
   private constructor(apiKey: string) {
     this.apiKey = apiKey;
   }
@@ -241,14 +247,14 @@ export class OpenRouterService {
 
   public async getChatCompletion(options: ChatCompletionOptions): Promise<ChatCompletionResponse> {
     const payload = this._buildPayload(options);
-    
+
     try {
       const response = await fetch(this.apiUrl, {
-        method: 'POST',
+        method: "POST",
         headers: {
-          'Authorization': `Bearer ${this.apiKey}`,
-          'Content-Type': 'application/json',
-          'HTTP-Referer': import.meta.env.SITE_URL || 'http://localhost:4321', // Zastąp lub skonfiguruj
+          Authorization: `Bearer ${this.apiKey}`,
+          "Content-Type": "application/json",
+          "HTTP-Referer": import.meta.env.SITE_URL || "http://localhost:4321", // Zastąp lub skonfiguruj
         },
         body: JSON.stringify(payload),
       });
@@ -260,7 +266,7 @@ export class OpenRouterService {
       }
 
       const responseData = await response.json();
-      const rawContent = responseData.choices[0]?.message?.content || '';
+      const rawContent = responseData.choices[0]?.message?.content || "";
 
       if (options.responseSchema) {
         try {
@@ -272,7 +278,6 @@ export class OpenRouterService {
       }
 
       return { rawContent };
-
     } catch (error) {
       if (error instanceof ApiError || error instanceof ResponseParseError) {
         throw error;
@@ -283,22 +288,22 @@ export class OpenRouterService {
   }
 
   private _buildPayload(options: ChatCompletionOptions): object {
-    const messages: { role: string, content: string }[] = [];
+    const messages: { role: string; content: string }[] = [];
 
     if (options.systemMessage) {
-      messages.push({ role: 'system', content: options.systemMessage });
+      messages.push({ role: "system", content: options.systemMessage });
     }
-    messages.push({ role: 'user', content: options.userMessage });
+    messages.push({ role: "user", content: options.userMessage });
 
     const payload: any = {
-      model: options.model || 'openai/gpt-3.5-turbo', // Model domyślny
+      model: options.model || "openai/gpt-3.5-turbo", // Model domyślny
       messages,
       ...options.params,
     };
 
     if (options.responseSchema) {
       payload.response_format = {
-        type: 'json_schema',
+        type: "json_schema",
         json_schema: {
           name: options.responseSchema.name,
           strict: true,
@@ -318,8 +323,8 @@ Utwórz plik `src/pages/api/chat.ts` do obsługi żądań od klienta.
 
 ```typescript
 // src/pages/api/chat.ts
-import type { APIRoute } from 'astro';
-import { OpenRouterService, ApiError, OpenRouterServiceError } from '@/lib/OpenRouterService';
+import type { APIRoute } from "astro";
+import { OpenRouterService, ApiError, OpenRouterServiceError } from "@/lib/OpenRouterService";
 
 export const POST: APIRoute = async ({ request }) => {
   try {
@@ -334,9 +339,8 @@ export const POST: APIRoute = async ({ request }) => {
 
     return new Response(JSON.stringify(response), {
       status: 200,
-      headers: { 'Content-Type': 'application/json' },
+      headers: { "Content-Type": "application/json" },
     });
-
   } catch (error) {
     console.error(error); // Logowanie błędu po stronie serwera
 
@@ -346,8 +350,8 @@ export const POST: APIRoute = async ({ request }) => {
     if (error instanceof OpenRouterServiceError) {
       return new Response(JSON.stringify({ error: error.message }), { status: 400 });
     }
-    
-    return new Response(JSON.stringify({ error: 'Wystąpił wewnętrzny błąd serwera' }), { status: 500 });
+
+    return new Response(JSON.stringify({ error: "Wystąpił wewnętrzny błąd serwera" }), { status: 500 });
   }
 };
 ```
@@ -358,33 +362,32 @@ Przykład użycia w komponencie React (`.tsx`):
 
 ```tsx
 // src/components/ChatComponent.tsx
-import React, { useState } from 'react';
+import React, { useState } from "react";
 
 const ChatComponent = () => {
-  const [message, setMessage] = useState('');
-  const [response, setResponse] = useState('');
+  const [message, setMessage] = useState("");
+  const [response, setResponse] = useState("");
   const [isLoading, setIsLoading] = useState(false);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsLoading(true);
-    setResponse('');
+    setResponse("");
 
     try {
-      const res = await fetch('/api/chat', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+      const res = await fetch("/api/chat", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ message }),
       });
 
       if (!res.ok) {
         const errorData = await res.json();
-        throw new Error(errorData.error || 'Coś poszło nie tak');
+        throw new Error(errorData.error || "Coś poszło nie tak");
       }
 
       const data = await res.json();
       setResponse(data.rawContent);
-
     } catch (error) {
       setResponse(`Błąd: ${error.message}`);
     } finally {
@@ -403,7 +406,7 @@ const ChatComponent = () => {
           disabled={isLoading}
         />
         <button type="submit" disabled={isLoading}>
-          {isLoading ? 'Myślenie...' : 'Wyślij'}
+          {isLoading ? "Myślenie..." : "Wyślij"}
         </button>
       </form>
       {response && <p>{response}</p>}

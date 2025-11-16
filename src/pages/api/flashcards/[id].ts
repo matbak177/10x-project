@@ -36,7 +36,7 @@ export const PUT: APIRoute = async ({ params, request, locals }) => {
   let body: FlashcardUpdateDto;
   try {
     body = await request.json();
-  } catch (error) {
+  } catch {
     return new Response(JSON.stringify({ message: "Invalid JSON body" }), {
       status: 400,
       headers: { "Content-Type": "application/json" },
@@ -63,6 +63,7 @@ export const PUT: APIRoute = async ({ params, request, locals }) => {
         headers: { "Content-Type": "application/json" },
       });
     }
+    // eslint-disable-next-line no-console
     console.error("Error updating flashcard:", error);
     return new Response(JSON.stringify({ message: "Internal Server Error" }), {
       status: 500,
@@ -104,6 +105,7 @@ export const DELETE: APIRoute = async ({ params, locals }) => {
         headers: { "Content-Type": "application/json" },
       });
     }
+    // eslint-disable-next-line no-console
     console.error("Error deleting flashcard:", error);
     return new Response(JSON.stringify({ message: "Internal Server Error" }), {
       status: 500,

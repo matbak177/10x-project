@@ -10,13 +10,10 @@ export class AiServiceError extends Error {
 }
 
 export const handleApiError = (e: unknown, supabase: SupabaseClient) => {
+  // eslint-disable-next-line no-console
   console.error(e);
 
   class ErrorApiService extends ApiService {
-    constructor(supabase: SupabaseClient) {
-      super(supabase);
-    }
-
     public static handleError(supabase: SupabaseClient, message: string, status = 500) {
       const instance = new ErrorApiService(supabase);
       return instance.serverError(message, status);

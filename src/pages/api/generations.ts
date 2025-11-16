@@ -28,7 +28,7 @@ export const POST: APIRoute = async ({ request, locals }) => {
   let body: GenerateFlashcardsCommand;
   try {
     body = await request.json();
-  } catch (error) {
+  } catch {
     return new Response(JSON.stringify({ message: "Invalid JSON body" }), {
       status: 400,
       headers: { "Content-Type": "application/json" },
@@ -61,6 +61,7 @@ export const POST: APIRoute = async ({ request, locals }) => {
     });
   } catch (error) {
     // TODO: Add detailed error logging (e.g., to generation_error_logs)
+    // eslint-disable-next-line no-console
     console.error("Error during flashcard generation:", error);
     return new Response(JSON.stringify({ message: "Internal Server Error" }), {
       status: 500,

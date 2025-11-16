@@ -4,7 +4,6 @@ import React, { useState } from "react";
 import { Button } from "@/components/ui/button";
 import type { Flashcard } from "./columns";
 import { Card, CardContent } from "@/components/ui/card";
-import { cn } from "@/lib/utils";
 
 interface StudyViewProps {
   flashcards: Flashcard[];
@@ -27,9 +26,27 @@ const StudyView = ({ flashcards, onExit }: StudyViewProps) => {
     setCurrentIndex((prevIndex) => (prevIndex - 1 + flashcards.length) % flashcards.length);
   };
 
+  const handleKeyDown = (e: React.KeyboardEvent<HTMLDivElement>) => {
+    if (e.key === "Escape") {
+      onExit();
+    }
+  };
+
   return (
-    <div className="fixed inset-0 bg-black/80 z-50 flex items-center justify-center" onClick={onExit}>
-      <div className="relative" onClick={(e) => e.stopPropagation()}>
+    <div
+      className="fixed inset-0 bg-black/80 z-50 flex items-center justify-center"
+      onClick={onExit}
+      onKeyDown={handleKeyDown}
+      role="button"
+      tabIndex={0}
+    >
+      <div
+        className="relative"
+        onClick={(e) => e.stopPropagation()}
+        onKeyDown={(e) => e.stopPropagation()}
+        role="button"
+        tabIndex={0}
+      >
         <Card
           className="w-[350px] h-[200px] cursor-pointer flex items-center justify-center text-center p-6"
           onClick={() => setIsFlipped(!isFlipped)}

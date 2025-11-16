@@ -56,7 +56,7 @@ export function PasswordRecoveryForm() {
       } else {
         setFormState({ message: "Jeśli konto istnieje, link do resetowania hasła został wysłany." });
       }
-    } catch (err) {
+    } catch {
       setFormState({ errors: { form: "Nie udało się połączyć z serwerem." } });
     } finally {
       setIsLoading(false);

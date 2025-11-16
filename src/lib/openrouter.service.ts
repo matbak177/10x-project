@@ -75,7 +75,7 @@ export class OpenRouterService {
           // Fallback for regular JSON response
           const structuredContent = JSON.parse(rawContent);
           return { rawContent, structuredContent };
-        } catch (e) {
+        } catch {
           throw new ResponseParseError("Nie udało się sparsować odpowiedzi JSON od modelu.");
         }
       }
@@ -98,7 +98,7 @@ export class OpenRouterService {
     }
     messages.push({ role: "user", content: options.userMessage });
 
-    const payload: any = {
+    const payload: Record<string, unknown> = {
       model: options.model || "openai/gpt-3.5-turbo", // Model domyślny
       messages,
       ...options.params,

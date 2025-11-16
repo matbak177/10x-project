@@ -22,6 +22,7 @@ export class ApiService {
   }
 
   protected serverError(message: string, status = 500) {
+    // eslint-disable-next-line no-console
     console.error(message);
     return new Response(JSON.stringify({ error: { message } }), {
       status,
