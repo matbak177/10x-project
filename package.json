@@ -13,6 +13,7 @@
     "format": "prettier --write .",
     "test": "npm run test:unit && npm run test:e2e",
     "test:unit": "vitest",
+    "test:coverage": "vitest run --coverage",
     "test:unit:ui": "vitest --ui",
     "test:e2e": "playwright test",
     "dev:e2e": "astro dev --mode test",
