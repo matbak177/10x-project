@@ -1,106 +1,96 @@
-import type {
-  FlashcardCreateDto,
-  FlashcardDto,
-  FlashcardInsert,
-  FlashcardListResponseDto,
-  PaginationDto,
-  FlashcardUpdateDto,
-} from "../../types";
-import type { SupabaseClient } from "../../db/supabase.client";
+import type { SupabaseClient } from "@/db/supabase.client";
+import type { Database } from "@/db/database.types";
+import { ApiService } from "./api.service";
 
-export class FlashcardService {
-  constructor(
-    private supabase: SupabaseClient,
-    private userId: string
-  ) {}
+type Flashcard = Database["public"]["Tables"]["flashcards"]["Row"];
+type FlashcardCreateDto = Omit<Flashcard, "id" | "created_at" | "updated_at" | "user_id">;
+type FlashcardUpdateDto = Partial<FlashcardCreateDto>;
 
-  public async createFlashcards(flashcards: FlashcardCreateDto[]): Promise<FlashcardDto[]> {
-    const flashcardsToInsert: FlashcardInsert[] = flashcards.map((flashcard) => ({
-      ...flashcard,
-      user_id: this.userId,
-    }));
+interface GetFlashcardsQuery {
+  page: number;
+  limit: number;
+  sort: "created_at" | "updated_at" | "front";
+  order: "asc" | "desc";
+}
 
-    const { data, error } = await this.supabase.from("flashcards").insert(flashcardsToInsert).select();
+interface GetFlashcardsResult {
+  data: Flashcard[];
+  count: number;
+  page: number;
+  limit: number;
+}
 
-    if (error) {
-      // TODO: Add detailed error logging
-      console.error("Error inserting flashcards:", error);
-      throw new Error("Failed to create flashcards in the database.");
-    }
+export class FlashcardService extends ApiService {
+  private readonly userId: string;
 
-    return data;
+  constructor(supabase: SupabaseClient, userId: string) {
+    super(supabase);
+    this.userId = userId;
   }
 
-  public async getFlashcards(options: {
-    page: number;
-    limit: number;
-    sort: "created_at" | "updated_at" | "front";
-    order: "asc" | "desc";
-  }): Promise<FlashcardListResponseDto> {
-    const { page, limit, sort, order } = options;
+  async getFlashcards(query: GetFlashcardsQuery): Promise<GetFlashcardsResult> {
+    const { page, limit, sort, order } = query;
     const from = (page - 1) * limit;
     const to = from + limit - 1;
 
-    const { data: flashcards, error } = await this.supabase
+    const { data, error, count } = await this.supabase
       .from("flashcards")
-      .select("*")
+      .select("*", { count: "exact" })
       .eq("user_id", this.userId)
       .order(sort, { ascending: order === "asc" })
       .range(from, to);
 
     if (error) {
-      console.error("Error fetching flashcards:", error);
-      throw new Error("Failed to fetch flashcards from the database.");
+      throw new Error(`Error fetching flashcards: ${error.message}`);
     }
-
-    const { count, error: countError } = await this.supabase
-      .from("flashcards")
-      .select("id", { count: "exact" })
-      .eq("user_id", this.userId);
-
-    if (countError) {
-      console.error("Error fetching flashcards count:", countError);
-      throw new Error("Failed to fetch flashcards count from the database.");
-    }
-
-    const pagination: PaginationDto = {
-      page,
-      limit,
-      total: count ?? 0,
-    };
 
     return {
-      data: flashcards as FlashcardDto[],
-      pagination,
+      data: data || [],
+      count: count || 0,
+      page,
+      limit,
     };
   }
 
-  public async updateFlashcard(id: number, flashcardUpdateDto: FlashcardUpdateDto): Promise<void> {
-    const { error, count } = await this.supabase
-      .from("flashcards")
-      .update(flashcardUpdateDto)
-      .match({ id: id, user_id: this.userId });
+  async createFlashcards(flashcards: FlashcardCreateDto[]): Promise<Flashcard[]> {
+    const flashcardsToInsert = flashcards.map((f) => ({ ...f, user_id: this.userId }));
+
+    const { data, error } = await this.supabase.from("flashcards").insert(flashcardsToInsert).select();
 
     if (error) {
-      console.error("Error updating flashcard:", error);
-      throw new Error("Failed to update flashcard in the database.");
+      throw new Error(`Error creating flashcards: ${error.message}`);
     }
 
-    if (count === 0) {
-      throw new Error("Flashcard not found or user does not have permission to update it."); // Will be caught and handled as 404
-    }
+    return data;
   }
 
-  public async deleteFlashcard(id: number): Promise<void> {
-    const { error, count } = await this.supabase.from("flashcards").delete().match({ id: id, user_id: this.userId });
+  async updateFlashcard(id: number, flashcard: FlashcardUpdateDto): Promise<Flashcard> {
+    const { data, error } = await this.supabase
+      .from("flashcards")
+      .update({ ...flashcard, updated_at: new Date().toISOString() })
+      .eq("id", id)
+      .eq("user_id", this.userId)
+      .select()
+      .single();
 
     if (error) {
-      console.error("Error deleting flashcard:", error);
-      throw new Error("Failed to delete flashcard from the database.");
+      if (error.code === "PGRST116") {
+        throw new Error(`Flashcard with id ${id} not found.`);
+      }
+      throw new Error(`Error updating flashcard: ${error.message}`);
+    }
+    if (!data) {
+      throw new Error(`Flashcard with id ${id} not found.`);
     }
 
-    if (count === 0) {
-      throw new Error("Flashcard not found or user does not have permission to delete it."); // Will be caught and handled as 404
+    return data;
+  }
+
+  async deleteFlashcard(id: number): Promise<void> {
+    const { error } = await this.supabase.from("flashcards").delete().eq("id", id).eq("user_id", this.userId);
+
+    if (error) {
+      throw new Error(`Error deleting flashcard: ${error.message}`);
     }
   }
 }

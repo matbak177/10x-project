@@ -27,6 +27,7 @@ The project is built with a modern, type-safe, and efficient technology stack:
 | **Frontend**      | [Astro 5](https://astro.build/), [React 19](https://react.dev/), [TypeScript 5](https://www.typescriptlang.org/), [Tailwind CSS 4](https://tailwindcss.com/), [Shadcn/ui](https://ui.shadcn.com/) |
 | **Backend**       | [Supabase](https://supabase.com/) (PostgreSQL, Authentication, BaaS)       |
 | **AI Integration**| [Openrouter.ai](https://openrouter.ai/) (Access to various LLMs)         |
+| **Testing**       | [Vitest](https://vitest.dev/) (Unit/Integration), [Playwright](https://playwright.dev/) (E2E), [React Testing Library](https://testing-library.com/docs/react-testing-library/intro/) (Components) |
 | **CI/CD & Hosting**| [GitHub Actions](https://github.com/features/actions), [DigitalOcean](https://www.digitalocean.com/) (via Docker) |
 
 ## Getting Started Locally

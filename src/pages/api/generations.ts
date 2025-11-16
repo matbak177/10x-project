@@ -2,7 +2,6 @@ import type { APIRoute } from "astro";
 import { z } from "zod";
 import type { GenerateFlashcardsCommand, GenerationCreateResponseDto } from "../../types";
 import { GenerationService } from "../../lib/services/generation.service";
-import { DEFAULT_USER_ID } from "../../db/supabase.client";
 
 export const prerender = false;
 
@@ -15,7 +14,16 @@ const generateFlashcardsSchema = z.object({
 
 export const POST: APIRoute = async ({ request, locals }) => {
   const { supabase } = locals;
-  const user = { id: DEFAULT_USER_ID }; // Using default user ID as requested
+  const { data: userData, error: userError } = await locals.supabase.auth.getUser();
+
+  if (userError || !userData?.user) {
+    return new Response(JSON.stringify({ message: "Unauthorized" }), {
+      status: 401,
+      headers: { "Content-Type": "application/json" },
+    });
+  }
+
+  const user = userData.user;
 
   let body: GenerateFlashcardsCommand;
   try {

@@ -1,11 +1,13 @@
 ---
 import "../styles/global.css";
+import { Toaster } from "sonner";
 
 interface Props {
   title?: string;
 }
 
 const { title = "10x Astro Starter" } = Astro.props;
+const user = Astro.locals.user;
 ---
 
 <!doctype html>
@@ -18,7 +20,56 @@ const { title = "10x Astro Starter" } = Astro.props;
     <title>{title}</title>
   </head>
   <body>
-    <slot />
+    <header class="border-b">
+      <div class="container mx-auto">
+        <nav class="flex items-center justify-between py-4">
+          <div class="flex items-center gap-6">
+            <a href="/" class="text-xl font-bold"> 10xFlashcards </a>
+            {
+              user && (
+                <ul class="flex items-center gap-4">
+                  <li>
+                    <a href="/generate">Generuj</a>
+                  </li>
+                  <li>
+                    <a href="/flashcards">Fiszki</a>
+                  </li>
+                </ul>
+              )
+            }
+          </div>
+          <ul class="flex items-center gap-4">
+            {
+              user ? (
+                <>
+                  <li>
+                    <span>{user.email}</span>
+                  </li>
+                  <li>
+                    <form action="/api/auth/logout" method="post">
+                      <button type="submit">Wyloguj</button>
+                    </form>
+                  </li>
+                </>
+              ) : (
+                <>
+                  <li>
+                    <a href="/login">Login</a>
+                  </li>
+                  <li>
+                    <a href="/register">Register</a>
+                  </li>
+                </>
+              )
+            }
+          </ul>
+        </nav>
+      </div>
+    </header>
+    <main class="container mx-auto py-8">
+      <slot />
+    </main>
+    <Toaster />
   </body>
 </html>
 
@@ -28,5 +79,26 @@ const { title = "10x Astro Starter" } = Astro.props;
     margin: 0;
     width: 100%;
     height: 100%;
+    background-color: hsl(var(--background));
+    color: hsl(var(--foreground));
+  }
+
+  header {
+    background: #f0f0f0;
+    padding: 1rem;
+    border-bottom: 1px solid #ddd;
+  }
+
+  nav ul {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    display: flex;
+    gap: 1rem;
+    align-items: center;
+  }
+
+  nav ul li form {
+    margin: 0;
   }
 </style>
