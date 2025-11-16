@@ -20,7 +20,7 @@ const user = Astro.locals.user;
     <title>{title}</title>
   </head>
   <body>
-    <header class="border-b">
+    <header class="sticky top-0 z-50 w-full border-b bg-background">
       <div class="container mx-auto">
         <nav class="flex items-center justify-between py-4">
           <div class="flex items-center gap-6">
@@ -81,12 +81,6 @@ const user = Astro.locals.user;
     height: 100%;
     background-color: hsl(var(--background));
     color: hsl(var(--foreground));
-  }
-
-  header {
-    background: #f0f0f0;
-    padding: 1rem;
-    border-bottom: 1px solid #ddd;
   }
 
   nav ul {
