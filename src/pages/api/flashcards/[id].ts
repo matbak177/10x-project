@@ -1,6 +1,5 @@
 import type { APIRoute } from "astro";
 import { z } from "zod";
-import { DEFAULT_USER_ID } from "../../../db/supabase.client";
 import { FlashcardService } from "../../../lib/services/flashcard.service";
 import type { FlashcardUpdateDto } from "../../../types";
 
@@ -15,7 +14,16 @@ const flashcardUpdateSchema = z.object({
 
 export const PUT: APIRoute = async ({ params, request, locals }) => {
   const { supabase } = locals;
-  const user = { id: DEFAULT_USER_ID }; // Using default user ID
+  const { data: userData, error: userError } = await locals.supabase.auth.getUser();
+
+  if (userError || !userData?.user) {
+    return new Response(JSON.stringify({ message: "Unauthorized" }), {
+      status: 401,
+      headers: { "Content-Type": "application/json" },
+    });
+  }
+
+  const user = userData.user;
 
   const flashcardId = Number(params.id);
   if (isNaN(flashcardId) || flashcardId <= 0) {
@@ -28,7 +36,7 @@ export const PUT: APIRoute = async ({ params, request, locals }) => {
   let body: FlashcardUpdateDto;
   try {
     body = await request.json();
-  } catch (error) {
+  } catch {
     return new Response(JSON.stringify({ message: "Invalid JSON body" }), {
       status: 400,
       headers: { "Content-Type": "application/json" },
@@ -55,6 +63,7 @@ export const PUT: APIRoute = async ({ params, request, locals }) => {
         headers: { "Content-Type": "application/json" },
       });
     }
+    // eslint-disable-next-line no-console
     console.error("Error updating flashcard:", error);
     return new Response(JSON.stringify({ message: "Internal Server Error" }), {
       status: 500,
@@ -65,7 +74,16 @@ export const PUT: APIRoute = async ({ params, request, locals }) => {
 
 export const DELETE: APIRoute = async ({ params, locals }) => {
   const { supabase } = locals;
-  const user = { id: DEFAULT_USER_ID }; // Using default user ID
+  const { data: userData, error: userError } = await locals.supabase.auth.getUser();
+
+  if (userError || !userData?.user) {
+    return new Response(JSON.stringify({ message: "Unauthorized" }), {
+      status: 401,
+      headers: { "Content-Type": "application/json" },
+    });
+  }
+
+  const user = userData.user;
 
   const flashcardId = Number(params.id);
   if (isNaN(flashcardId) || flashcardId <= 0) {
@@ -87,6 +105,7 @@ export const DELETE: APIRoute = async ({ params, locals }) => {
         headers: { "Content-Type": "application/json" },
       });
     }
+    // eslint-disable-next-line no-console
     console.error("Error deleting flashcard:", error);
     return new Response(JSON.stringify({ message: "Internal Server Error" }), {
       status: 500,

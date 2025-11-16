@@ -49,6 +49,7 @@ export const POST: APIRoute = async ({ request }) => {
       headers: { "Content-Type": "application/json" },
     });
   } catch (error) {
+    // eslint-disable-next-line no-console
     console.error(error); // Logowanie błędu po stronie serwera
 
     if (error instanceof ApiError) {

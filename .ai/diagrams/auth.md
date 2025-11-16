@@ -1,4 +1,5 @@
 <authentication_analysis>
+
 ### 1. Przepływy autentykacji
 
 - **Rejestracja**: Nowy użytkownik tworzy konto za pomocą adresu e-mail i hasła.
@@ -27,39 +28,34 @@
 ### 4. Opis kroków autentykacji
 
 1.  **Rejestracja**:
-    -   Użytkownik wypełnia formularz `RegisterForm.tsx`.
-    -   Komponent wywołuje `POST /api/auth/register`.
-    -   Endpoint API wywołuje `supabase.auth.signUp()`.
-    -   Supabase tworzy użytkownika, wysyła e-mail weryfikacyjny i tworzy sesję.
-    -   API ustawia ciasteczka sesji w odpowiedzi.
-    -   Użytkownik jest informowany o konieczności sprawdzenia poczty e-mail.
+    - Użytkownik wypełnia formularz `RegisterForm.tsx`.
+    - Komponent wywołuje `POST /api/auth/register`.
+    - Endpoint API wywołuje `supabase.auth.signUp()`.
+    - Supabase tworzy użytkownika, wysyła e-mail weryfikacyjny i tworzy sesję.
+    - API ustawia ciasteczka sesji w odpowiedzi.
+    - Użytkownik jest informowany o konieczności sprawdzenia poczty e-mail.
 
 2.  **Logowanie**:
-    -   Użytkownik wypełnia formularz `LoginForm.tsx`.
-    -   Komponent wywołuje `POST /api/auth/login`.
-    -   Endpoint API wywołuje `supabase.auth.signInWithPassword()`.
-    -   Supabase weryfikuje dane uwierzytelniające i zwraca sesję.
-    -   API ustawia ciasteczka sesji.
-    -   Użytkownik jest przekierowywany do `/dashboard`.
+    - Użytkownik wypełnia formularz `LoginForm.tsx`.
+    - Komponent wywołuje `POST /api/auth/login`.
+    - Endpoint API wywołuje `supabase.auth.signInWithPassword()`.
+    - Supabase weryfikuje dane uwierzytelniające i zwraca sesję.
+    - API ustawia ciasteczka sesji.
+    - Użytkownik jest przekierowywany do `/dashboard`.
 
 3.  **Dostęp do chronionej trasy (`/dashboard`)**:
-    -   Użytkownik przechodzi do `/dashboard`.
-    -   **Middleware Astro** przechwytuje żądanie.
-    -   Middleware odczytuje ciasteczka sesji.
-    -   Wywołuje `supabase.auth.getUser()` z tokenem z ciasteczek.
-    -   **Jeśli sesja jest ważna**: Supabase zwraca dane użytkownika. Middleware zapisuje użytkownika w `Astro.locals.user` i pozwala na kontynuację żądania.
-    -   **Jeśli sesja jest nieważna/brakująca**: Middleware przekierowuje użytkownika do `/login`.
+    - Użytkownik przechodzi do `/dashboard`.
+    - **Middleware Astro** przechwytuje żądanie.
+    - Middleware odczytuje ciasteczka sesji.
+    - Wywołuje `supabase.auth.getUser()` z tokenem z ciasteczek.
+    - **Jeśli sesja jest ważna**: Supabase zwraca dane użytkownika. Middleware zapisuje użytkownika w `Astro.locals.user` i pozwala na kontynuację żądania.
+    - **Jeśli sesja jest nieważna/brakująca**: Middleware przekierowuje użytkownika do `/login`.
 
-4.  **Wylogowanie**:
-    -   Użytkownik klika "Wyloguj" w `UserDropdown.tsx`.
-    -   Komponent wywołuje `POST /api/auth/logout`.
-    -   Endpoint API wywołuje `supabase.auth.signOut()`.
-    -   Supabase unieważnia sesję.
-    -   API usuwa ciasteczka sesji.
-    -   Użytkownik jest przekierowywany do `/login`.
-</authentication_analysis>
+4.  **Wylogowanie**: - Użytkownik klika "Wyloguj" w `UserDropdown.tsx`. - Komponent wywołuje `POST /api/auth/logout`. - Endpoint API wywołuje `supabase.auth.signOut()`. - Supabase unieważnia sesję. - API usuwa ciasteczka sesji. - Użytkownik jest przekierowywany do `/login`.
+    </authentication_analysis>
 
 <mermaid_diagram>
+
 ```mermaid
 sequenceDiagram
     autonumber
@@ -73,30 +69,30 @@ sequenceDiagram
     activate Przeglądarka (React)
     Przeglądarka (React)->>Astro API: POST /api/auth/login (email, hasło)
     deactivate Przeglądarka (React)
-    
+
     activate Astro API
     Astro API->>Supabase Auth: signInWithPassword(email, hasło)
     activate Supabase Auth
     Supabase Auth-->>Astro API: Zwraca sesję (access_token, refresh_token)
     deactivate Supabase Auth
-    
+
     Astro API-->>Przeglądarka (React): Odpowiedź 200 OK, ustawia ciasteczka sesji
     deactivate Astro API
-    
+
     activate Przeglądarka (React)
     Przeglądarka (React)->>Użytkownik: Przekierowanie na /dashboard
     deactivate Przeglądarka (React)
-    
+
     Użytkownik->>Przeglądarka (React): Żądanie dostępu do /dashboard
-    
+
     activate Przeglądarka (React)
     Przeglądarka (React)->>Middleware Astro: GET /dashboard (z ciasteczkami)
     deactivate Przeglądarka (React)
-    
+
     activate Middleware Astro
     Middleware Astro->>Supabase Auth: getUser(access_token)
     activate Supabase Auth
-    
+
     alt Token jest ważny
         Supabase Auth-->>Middleware Astro: Zwraca dane użytkownika
         deactivate Supabase Auth
@@ -111,7 +107,8 @@ sequenceDiagram
         deactivate Supabase Auth
         Middleware Astro-->>Przeglądarka (React): Przekierowanie na /login
     end
-    
+
     deactivate Middleware Astro
 ```
+
 </mermaid_diagram>
