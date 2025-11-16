@@ -22,7 +22,7 @@ export default defineConfig({
     },
   ],
   webServer: {
-    command: "npm run preview",
+    command: `SUPABASE_URL=${process.env.SUPABASE_URL} PUBLIC_SUPABASE_PUBLIC_KEY=${process.env.SUPABASE_PUBLIC_KEY} npm run preview`,
     url: "http://localhost:3000",
     reuseExistingServer: !process.env.CI,
   },
