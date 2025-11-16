@@ -4,6 +4,14 @@ import path from "path";
 
 dotenv.config({ path: path.resolve(process.cwd(), ".env.test") });
 
+if (!process.env.SUPABASE_URL) {
+  throw new Error("SUPABASE_URL is not set");
+}
+
+if (!process.env.SUPABASE_PUBLIC_KEY) {
+  throw new Error("SUPABASE_PUBLIC_KEY is not set");
+}
+
 export default defineConfig({
   testDir: "./tests/e2e",
   fullyParallel: true,
@@ -27,8 +35,8 @@ export default defineConfig({
     reuseExistingServer: !process.env.CI,
     timeout: 120 * 1000,
     env: {
-      SUPABASE_URL: process.env.SUPABASE_URL!,
-      PUBLIC_SUPABASE_PUBLIC_KEY: process.env.SUPABASE_PUBLIC_KEY!,
+      SUPABASE_URL: process.env.SUPABASE_URL,
+      PUBLIC_SUPABASE_PUBLIC_KEY: process.env.SUPABASE_PUBLIC_KEY,
     },
   },
 });
