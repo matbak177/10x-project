@@ -8,8 +8,12 @@ if (!process.env.SUPABASE_URL) {
   throw new Error("SUPABASE_URL is not set");
 }
 
-if (!process.env.SUPABASE_PUBLIC_KEY) {
-  throw new Error("SUPABASE_PUBLIC_KEY is not set");
+if (!process.env.PUBLIC_SUPABASE_PUBLIC_KEY) {
+  throw new Error("PUBLIC_SUPABASE_PUBLIC_KEY is not set");
+}
+
+if (!process.env.SUPABASE_SECRET_KEY) {
+  throw new Error("SUPABASE_SECRET_KEY is not set");
 }
 
 export default defineConfig({
@@ -36,7 +40,8 @@ export default defineConfig({
     timeout: 120 * 1000,
     env: {
       SUPABASE_URL: process.env.SUPABASE_URL,
-      PUBLIC_SUPABASE_PUBLIC_KEY: process.env.SUPABASE_PUBLIC_KEY,
+      PUBLIC_SUPABASE_PUBLIC_KEY: process.env.PUBLIC_SUPABASE_PUBLIC_KEY,
+      SUPABASE_SECRET_KEY: process.env.SUPABASE_SECRET_KEY,
     },
   },
 });
